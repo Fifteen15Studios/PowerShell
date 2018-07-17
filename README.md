@@ -1,2 +1,2 @@
 # PowerShell
-A repository of PowerShell scripts that I have written (Or at least stolen then edited)
+A repository of PowerShell scripts that I have written (Or sometimes stolen then edited)
