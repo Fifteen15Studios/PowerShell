@@ -1,4 +1,10 @@
-﻿$SiteCode = "<site code>" # Must be hard coded. Detection methods don't seem to work
+# Removes USMT computer association, and removes the computers from the SCCM
+# collection that the USMT task sequences are deployed to.
+#
+# This script requires an SCCM service account to connect to the SCCM 
+# environment in the PowerShell window.
+
+$SiteCode = "<site code>" # Must be hard coded. Detection methods don't seem to work
 $USMTSourceCollection = "USMT Scan"  # Change to the name of your collection
 $USMTDestCollection = "USMT Load"  # Change to the name of your collection
 
