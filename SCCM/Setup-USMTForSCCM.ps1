@@ -1,4 +1,13 @@
-﻿param (
+# Adds the current PC to a collection for USMT Scan state, adds the
+# USMT destination PC to another collection for USMT load state, and
+# creates a computer association in SCCM to allow for USMT to be run
+# between the two PCs. The destination PC is passed in as a mandatory
+# parameter.
+#
+# This script requires an SCCM service account to connect to the SCCM 
+# environment in the PowerShell window.
+ 
+param (
 [parameter(Mandatory=$true, HelpMessage="Name of computer to transfer files to")]
 [string ]$DestinationName
 )
