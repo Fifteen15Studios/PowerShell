@@ -1,3 +1,15 @@
+# Purpose:
+# Searches through your SCCM environment to find driver packs that are not 
+# referenced by any Task Sequence. If any such driver packs are found, the pack
+# will be deleted out of SCCM, and the source files will also be deleted from
+# the location where they are stored.
+#
+# Parameters:
+#
+# WhatIf [switch] - Displays the name, location, and size of the ununsed driver
+#    packs, and a total size of all of the driver packs, but does not delete
+#    anything from SCCM or any files.
+
 [CmdletBinding()]
 param(
     [switch]$WhatIf
