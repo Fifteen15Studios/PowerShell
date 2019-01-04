@@ -10,7 +10,7 @@
 param( 
     [ValidateScript({
             if($_ -notmatch "(\.xls|\.xlsx)"){
-                throw "The file specified in the OutputFile argument must be of type xls or xlsx."
+                throw "The file specified in the InputFile argument must be of type xls or xlsx."
             }
             return $true 
         })]
