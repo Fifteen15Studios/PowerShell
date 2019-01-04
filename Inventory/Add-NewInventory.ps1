@@ -19,7 +19,7 @@ param(
 )
 
 #----------------------------------Start Setup---------------------------------
-$InventoryFile = "" #Make sure to put in the name of a file
+$InventoryFile = "" #Make sure to put in the name of an Excel file (.xls or .xlsx)
 
 #If no full path provided
 if((-not $InputFile.StartsWith("\\")) -and (-not $InputFile.Substring(1,2).Equals(":\")))
