@@ -15,7 +15,7 @@
 $Setting = "Wake On LAN"
 
 $instance = get-ciminstance -classname hp_biossetting -namespace "root\hp\instrumentedbios" | where name -eq $Setting
-$choice = ($instance.possiblevalues)[$instance.possiblevalues.count-1]
+$choice = ($instance.possiblevalues)[-1]
 
 if((Get-WmiObject Win32_OperatingSystem).OSArchitecture -eq "64-bit")
 {
