@@ -14,9 +14,12 @@
 
 $Setting = "Wake On LAN"
 
+#Find possible Wake on LAN settings
 $instance = get-ciminstance -classname hp_biossetting -namespace "root\hp\instrumentedbios" | where name -eq $Setting
+#Get the last one in the list
 $choice = ($instance.possiblevalues)[-1]
 
+#Set the setting to the proper value
 if((Get-WmiObject Win32_OperatingSystem).OSArchitecture -eq "64-bit")
 {
     .\BiosConfigUtility64.exe /setvalue:"$Setting","$choice"
