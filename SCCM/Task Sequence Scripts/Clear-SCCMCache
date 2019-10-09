@@ -5,7 +5,7 @@
 $resman = new-object -com "UIResource.UIResourceMgr"
 $cacheInfo = $resman.GetCacheInfo()
 
-#Enum Cache elements, compare date, and delete older than 60 days
+#Enum Cache elements and delete each item
 $cacheinfo.GetCacheElements()  |
 foreach
 {
