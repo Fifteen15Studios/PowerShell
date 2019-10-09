@@ -1,6 +1,6 @@
 # Purpose: 
 # Find the uninstall string for a specific application.
-# This can the be used to perform an uninstall.
+# This can then be used to perform an uninstall.
 #
 # Parameters: 
 # appName - Name of 1 or more applications to find the Uninstall string for
