@@ -11,4 +11,4 @@ Each script has a comment block at the top of it to describe its purpose and how
 These scripts are provided with no warranty, implicit or otherwise. Use them at your own risk! I am not responsible if something unexpected happens as a result of running one of my scripts. Many of them are provided simply as a starting point, and require some modification in order to perform properly. 
 
 ## License
-These scripts are provided free of cost, without restriction. You are free to make any changes to these scripts that you feel may be necessary.
+These scripts are provided free of cost, without restriction. You are free to make any changes to these scripts that you feel may be necessary. You may use them for any use case, and in any environment, be it personal of business.
