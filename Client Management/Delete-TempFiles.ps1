@@ -2,6 +2,11 @@
 #
 # Deletes files from various locations used for temporary storage
 
-$tempFolders = @( “C:\Windows\Temp\*”, “C:\Documents and Settings\*\Local Settings\temp\*”, “C:\Users\*\Appdata\Local\Temp\*”,"C:\windows\ccmcache\*")
+$tempFolders = @( 
+“C:\Windows\Temp\*”, # Default Windows temp location
+“C:\Documents and Settings\*\Local Settings\temp\*”, # Windows XP user temp
+“C:\Users\*\Appdata\Local\Temp\*”, # Windows Vista+ user temp
+"C:\windows\ccmcache\*" # Default SCCM temp location
+)
 
 Remove-Item $tempFolders -recurse -force -ErrorAction SilentlyContinue
