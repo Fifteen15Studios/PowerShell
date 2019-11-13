@@ -3,8 +3,8 @@
 # For this script to work properly, you may need the proper driver files to be
 # in a subfolder called "drivers", and you will need to know what the name of
 # the driver is within Windows. If you are using a built-in driver, the driver
-# files will not be needed, but you still need to know the neme of th driver
-# within Windows .
+# files will not be needed, but you still need to know the name of the driver
+# within Windows.
 #
 # If the printer is already installed on a PC, the name of the driver can be
 # found on the "Printer Properties" window, under the "Advanced" page.
