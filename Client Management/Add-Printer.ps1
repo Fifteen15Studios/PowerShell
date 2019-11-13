@@ -1,4 +1,4 @@
-﻿###############################################################################
+###############################################################################
 #
 # For this script to work properly, you may need the proper driver files to be
 # in a subfolder called "drivers", and you will need to know what the name of
@@ -14,6 +14,7 @@
 $IPAddress = #Example: "10.10.10.250"
 $Driver = # Example: "HP Color LaserJet Pro M478f-9f PCL-6 (V4)"
 $Name = # Example: "Front-Desk-LJ"
+$INFFile = # Example: "hpclC62A4_x64.inf"
 
 # Attempt to retrieve information about the printer
 $Printer = Get-Printer -Name $Name -ErrorAction SilentlyContinue
@@ -79,11 +80,18 @@ else
                 $ScriptPath = split-path -parent $MyInvocation.MyCommand.Definition
             }
 
-            Add-PrinterDriver $Driver -InfPath "$ScriptPath\Driver\hpclC62A4_x64.inf"
+            #Add driver to Windows driver store
+            pnputil.exe -add-driver "$ScriptPath\Driver\$INFFile"
+            # Add printer driver
+            Add-PrinterDriver $Driver
         }
 
-        # Add printer and IP port
-        Add-PrinterPort -Name $IPAddress -PrinterHostAddress $IPAddress
+        # Add new IP as port
+        if(-not (Get-PrinterPort -Name $IPAddress -ErrorAction SilentlyContinue))
+        {
+            Add-PrinterPort -Name $IPAddress -PrinterHostAddress $IPAddress
+        }
+        # Add Printer
         Add-Printer -Name $Name -DriverName $Driver -PortName $IPAddress
 
         Write-Host "Successfully added $Name" -ForegroundColor Green
