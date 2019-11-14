@@ -44,7 +44,7 @@ elseif($Printer)
         # Change IP
         Set-Printer -Name $Name -PortName $IPAddress
         # Remove old IP port
-        Remove-PrinterPort $OldIP -ErrorAction SilentlyContinue
+        Remove-PrinterPort -Name $OldIP -ErrorAction SilentlyContinue
     }
     else
     {
@@ -80,7 +80,7 @@ else
                 $ScriptPath = split-path -parent $MyInvocation.MyCommand.Definition
             }
 
-            #Add driver to Windows driver store
+            # Add driver to Windows driver store
             pnputil.exe -add-driver "$ScriptPath\Driver\$INFFile"
             # Add printer driver
             Add-PrinterDriver $Driver
