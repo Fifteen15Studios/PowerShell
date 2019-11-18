@@ -34,7 +34,7 @@ elseif($Printer)
     "New IP: $IPAddress"
 
     # Test connection to printer
-    if(Test-Connection $IPAddress -Count 1)
+    if(Test-Connection $IPAddress -Count 1 -Quiet)
     {
         # Add new IP as port
         if(-not (Get-PrinterPort -Name $IPAddress -ErrorAction SilentlyContinue))
@@ -44,11 +44,11 @@ elseif($Printer)
         # Change IP
         Set-Printer -Name $Name -PortName $IPAddress
         # Remove old IP port
-        Remove-PrinterPort -Name $OldIP -ErrorAction SilentlyContinue
+        Remove-PrinterPort $OldIP -ErrorAction SilentlyContinue
     }
     else
     {
-        Write-Error "Cannot connect to $IPAddress. Check your connection and try again. No changes have been made."
+        Write-Host "Cannot connect to $IPAddress. Check your connection and try again. No changes have been made." -ForegroundColor Red
         exit 1
     }
 }
@@ -58,7 +58,7 @@ else
     "Printer does not exist. Adding printer..."
 
     # Test connection to printer
-    if(Test-Connection $IPAddress -Count 1)
+    if(Test-Connection $IPAddress -Count 1 -Quiet)
     {
         # Quit on error from here on out
         $ErrorActionPreference = "Stop"
@@ -98,7 +98,7 @@ else
     }
     else
     {
-        Write-Error "Cannot connect to printer. Check your connection and try again."
+        Write-Host "Cannot connect to printer. Check your connection and try again." -ForegroundColor Red
         Exit 1
     }
 }
