@@ -11,10 +11,12 @@
 #
 ###############################################################################
 
-$IPAddress = #Example: "10.10.10.250"
-$Driver = # Example: "HP Color LaserJet Pro M478f-9f PCL-6 (V4)"
-$Name = # Example: "Front-Desk-LJ"
-$INFFile = # Example: "hpclC62A4_x64.inf"
+param(
+    $IPAddress = #Example: "10.10.10.250"
+    $Driver = # Example: "HP Color LaserJet Pro M478f-9f PCL-6 (V4)"
+    $Name = # Example: "Front-Desk-LJ"
+    $INFFile = # Example: "hpclC62A4_x64.inf"
+)
 
 # Attempt to retrieve information about the printer
 $Printer = Get-Printer -Name $Name -ErrorAction SilentlyContinue
