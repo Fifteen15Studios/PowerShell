@@ -15,8 +15,45 @@ param(
     $IPAddress = #Example: "10.10.10.250"
     $Driver = # Example: "HP Color LaserJet Pro M478f-9f PCL-6 (V4)"
     $Name = # Example: "Front-Desk-LJ"
-    $INFFile = # Example: "hpclC62A4_x64.inf"
+    $INFFile = # Example: "hpclC62A4_x64.inf",
+    [Switch]$SetAsDefault
 )
+
+# Attempt to retrieve information about the printer
+function setAsDefault($Name)
+{
+    # If default isn't already set to this printer
+    if((gwmi win32_printer | WHERE {$_.Default -eq $True}).Name -ne $Name)
+    {
+        # Step 1: Remove "Let Windows manage my default printer" setting
+        # Only if Windows 10
+        if(([System.Environment]::OSVersion.Version).Major -ge 10)
+        {
+            $Key = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Windows"
+            $Property = "LegacyDefaultPrinterMode"
+            $Value = 1
+
+            # If value doesn't exist
+            if(!(Get-ItemProperty -Path $Key | Get-Member -Name $Property))
+            {
+                New-ItemProperty $Key -Name $Property -Value $Value
+            }
+            # If value exists but isn't set properly
+            elseif((Get-ItemProperty $Key -Name $Property) -ne $Value)
+            {
+                Set-ItemProperty $Key -Name $Property -Value $Value
+            }
+        }
+
+        # Step 2: Set default printer
+        (New-Object -ComObject WScript.Network).SetDefaultPrinter("$Name")
+        Write-Host "$Name set as default printer" -ForegroundColor Green
+    }
+    else
+    {
+        Write-Host "$Name is already set as default printer" -ForegroundColor Green
+    }
+}
 
 # Attempt to retrieve information about the printer
 $Printer = Get-Printer -Name $Name -ErrorAction SilentlyContinue
@@ -24,7 +61,14 @@ $Printer = Get-Printer -Name $Name -ErrorAction SilentlyContinue
 # Check to see if printer exists
 if($Printer -and ($Printer.PortName -eq $IPAddress))
 {
-    Write-Host "Printer already installed. No changes have been made." -ForegroundColor Green
+    Write-Host "$Name is already installed." -ForegroundColor Green
+
+    # If  switch enabled to set printer as default
+    if($SetAsDefault)
+    {
+        setAsDefault($Name)
+    }
+
     exit 0
 }
 # If Printer exists but with different IP, change IP
@@ -47,6 +91,12 @@ elseif($Printer)
         Set-Printer -Name $Name -PortName $IPAddress
         # Remove old IP port
         Remove-PrinterPort $OldIP -ErrorAction SilentlyContinue
+
+        # If  switch enabled to set printer as default
+        if($SetAsDefault)
+        {
+            setAsDefault($Name)
+        }
     }
     else
     {
@@ -97,6 +147,12 @@ else
         Add-Printer -Name $Name -DriverName $Driver -PortName $IPAddress
 
         Write-Host "Successfully added $Name" -ForegroundColor Green
+
+        # If  switch enabled to set printer as default
+        if($SetAsDefault)
+        {
+            setAsDefault($Name)
+        }
     }
     else
     {
