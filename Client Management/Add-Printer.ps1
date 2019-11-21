@@ -19,7 +19,6 @@ param(
     [Switch]$SetAsDefault
 )
 
-# Attempt to retrieve information about the printer
 function setAsDefault($Name)
 {
     # If default isn't already set to this printer
