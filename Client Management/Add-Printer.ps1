@@ -12,10 +12,10 @@
 ###############################################################################
 
 param(
-    $IPAddress = #Example: "10.10.10.250"
-    $Driver = # Example: "HP Color LaserJet Pro M478f-9f PCL-6 (V4)"
-    $Name = # Example: "Front-Desk-LJ"
-    $INFFile = # Example: "hpclC62A4_x64.inf",
+    $IPAddress, #Example: "10.10.10.250"
+    $Driver, # Example: "HP Color LaserJet Pro M478f-9f PCL-6 (V4)"
+    $Name, # Example: "Front-Desk-LJ"
+    $INFFile, # Example: "hpclC62A4_x64.inf",
     [Switch]$SetAsDefault
 )
 
