@@ -5,19 +5,19 @@
 ###############################################################################
 
 # Get Information
-$Name = (Get-WmiObject Win32_OperatingSystem).caption
+$Name = (Get-CimInstance Win32_OperatingSystem).caption
 $ServerOS = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").InstallationType -eq "Server"
-$Bit = (Get-WmiObject Win32_OperatingSystem).OSArchitecture
-$Version = [Version]([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$env:SystemRoot\System32\kernel32.dll").ProductVersion)
+$Bit = (Get-CimInstance Win32_OperatingSystem).OSArchitecture
+$Version = [Version](Get-CimInstance win32_operatingsystem).version
 $Build= (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").CurrentBuild
-$InstallDate = [timezone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970')).AddSeconds($(get-itemproperty "HKLM:\Software\Microsoft\Windows NT\CurrentVersion").InstallDate)
+$InstallDate = [timezone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970')).AddSeconds($(Get-ItemProperty "HKLM:\Software\Microsoft\Windows NT\CurrentVersion").InstallDate)
 
 # If Windows 10, get Release ID
 if($Version.Major -ge 10){$ReleaseID=(Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").ReleaseId}
 
 function getUptime
 {
-    $uptime = ((get-date) - (gcim Win32_OperatingSystem).LastBootUpTime)
+    $uptime = ((get-date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime)
 
     $Output = ""
 
