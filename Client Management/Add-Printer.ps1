@@ -1,7 +1,7 @@
 ###############################################################################
 #
 # For this script to work properly, you may need the proper driver files to be
-# in a subfolder called "drivers", and you will need to know what the name of
+# in a subfolder called "driver", and you will need to know what the name of
 # the driver is within Windows. If you are using a built-in driver, the driver
 # files will not be needed, but you still need to know the name of the driver
 # within Windows.
