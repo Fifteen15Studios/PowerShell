@@ -47,7 +47,7 @@ else
     if($Software.count -gt 1)
     {
         "Found $($Software.count) matching applications:"
-        $Software | ft
+        $Software | ft Vendor, Name, Version, Caption, IdentifyingNumber
     }
 
     foreach($App in $Software)
