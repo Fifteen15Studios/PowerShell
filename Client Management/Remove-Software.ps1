@@ -41,9 +41,9 @@ if($Software -eq $null)
 {
     "$SoftwareToFind is not installed"
 }
-# If there is more than 1 matching application
 else
 {
+    # If there is more than 1 matching application
     if($Software.count -gt 1)
     {
         "Found $($Software.count) matching applications:"
