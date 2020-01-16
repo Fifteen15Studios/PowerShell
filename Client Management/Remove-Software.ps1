@@ -19,7 +19,7 @@ param(
 
 cls
 "Finding matching software..."
-$Software = Get-WmiObject win32_product | Where-Object {$_.name -like "*$SoftwareToFind*"} | sort name
+$Software = Get-WmiObject win32_product | Where-Object {$_.name -like "*$SoftwareToFind*"} | sort name, version
 cls
 
 function uninstall($App)
