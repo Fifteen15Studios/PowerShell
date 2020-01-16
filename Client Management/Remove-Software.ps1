@@ -17,6 +17,7 @@ param(
     $SoftwareToFind
 )
 
+cls
 "Finding matching software..."
 $Software = Get-WmiObject win32_product | Where-Object {$_.name -like "*$SoftwareToFind*"} | sort name
 cls
