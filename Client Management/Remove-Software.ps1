@@ -16,7 +16,7 @@ function uninstall($App)
     if($Answer -ne "" -and $Answer.ToLower()[0] -eq "y")
     {
         "Uninstalling $ActualName silently..."
-        #msiexec /qn /x $ID
+        msiexec /qn /x $ID
     }
 
 }
