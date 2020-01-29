@@ -1,19 +1,10 @@
-﻿<#
+<#
 .Synopsis
    Choose an organizational unit from a GUI
 .DESCRIPTION
    Launches a windows form where you can choose an organizational unit from
    a treeview. You can change the domain or add an organizational unit from 
    the context menu.
-.PARAMETER Domain
-   Domain name or distinguished name of the domain to be displayed. If
-   omitted the current user domain is used.
-.PARAMETER AdvancedFeatures
-   Show folders shown in advanced features at startup.
-.PARAMETER HideNewOUFeature
-   Hides the ability to create a new organizational unit from the context menu.
-.PARAMETER MultiSelect
-   Adds checkboxes to all nodes so multiple objects can be selected.
 .EXAMPLE
    Choose-ADOrganizationalUnit -HideNewOUFeature
    This command will show the form containing the OU structure of the
@@ -28,12 +19,16 @@
    This command will show the form containing the OU structure of the
    CONTOSO.COM domain using alternate credentials. This can also be used from a
    computer that is not domain-joined.
+.EXAMPLE
+   Choose-ADOrganizationalUnit -RootOU OU=Finance,OU=Departments,DC=CONTOSO,DC=COM
+   This command will show the form containing the OU structure of the
+   CONTOSO.COM domain using the Finance OU as root.
 .OUTPUTS
    PowerShell object with Name and Distinguished Name of chosen organizational unit.
 .NOTES
    Author : Michaja van der Zouwen
-   version: 2.2
-   Date   : 10-11-2016
+   version: 2.3
+   Date   : 14-06-2018
 
    New in this version: 
 
@@ -50,16 +45,20 @@ function Choose-ADOrganizationalUnit
     [CmdletBinding()]
     Param
     (
-        #FQDN or Distinguished Name of the domain you want to view
+        #FQDN or Distinguished Name of the domain you want to use
         [Parameter(ValueFromPipelineByPropertyName=$true,
                    Position=0)]
         [Alias("DistinguishedName")]
 	    [string]
         $Domain,
+
+        #Distinghuished name of an OU you want to serve as root
+        [Parameter(Mandatory=$false,
+                       Position=1)]
+        [string]
+        $RootOU,
 	
 	    #Credentials for connecting to ActiveDirectory domain
-	    [Parameter(Mandatory=$false,
-                       Position=1)]
 	    $Credential,
 
         #Enable Advanced features on startup
@@ -75,6 +74,7 @@ function Choose-ADOrganizationalUnit
         $MultiSelect
     )
 
+    
 	#region Import the Assemblies
 
 	[void][reflection.assembly]::Load("mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
@@ -771,7 +771,7 @@ Password"
 			$Treeview.CheckBoxes = $true
 		}
         $cb_AdvancedFeatures.Checked = $AdvancedFeatures
-	$ADSearcher.PropertiesToLoad.AddRange(@('name','distinguishedname'))
+	$ADSearcher.PropertiesToLoad.AddRange(@('name','distinguishedname','objectClass'))
 	}
 	
 	$CreateOU=[System.Windows.Forms.NodeLabelEditEventHandler]{
@@ -889,7 +889,14 @@ Password"
 	
 	$Treeview_BeforeExpand=[System.Windows.Forms.TreeViewCancelEventHandler]{
 		#Get next level for current node
-		If ($_.Node.Level -ne 0)
+        If ($_.Node.Level -eq 1 -and $RootOU)
+        {
+            $_.Node.Nodes.Clear()
+            $RootNode = Add-Node -dname $RootOU `
+				-name $RootOU.Split(',')[0].Substring(3) -RootNode $_.Node
+            $RootNode.Expand()
+        }
+        elseIf ($_.Node.Level -ne 0)
 		{
 			Get-NextLevel -RootNode $_.Node
 		}
@@ -1481,5 +1488,3 @@ A///AAIACw=='))
     return $SelectedObject
 
 } #End Function Choose-ADOrganizationalUnit
-
-Choose-ADOrganizationalUnit
