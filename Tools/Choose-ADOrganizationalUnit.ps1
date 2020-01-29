@@ -884,6 +884,7 @@ Password"
 		finally
 		{
 			$formChooseOU.Cursor = 'Default'
+            $formChooseOU.BringToFront()
 		}
 	}
 	
