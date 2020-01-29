@@ -13,7 +13,6 @@ $message = "Network adapter was not activated after driver install.
 
 Remove the adapter, reinsert it,
 and press Enter [OK]."
-$returncode = "0"
 
 <#You can use task sequence variables for these values by uncommenting 
 # this block of code
@@ -22,8 +21,7 @@ $returncode = "0"
 $tsenv = New-Object -COMObject Microsoft.SMS.TSEnvironment
 # read variables set in the task sequence
 $title = $tsenv.Value("title")
-$message = $tsenv.Value("message")
-$returncode = $tsenv.Value("returncode")#>
+$message = $tsenv.Value("message")#>
 
 $result = gwmi -Query 'SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled="True"'
 
