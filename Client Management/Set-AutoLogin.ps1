@@ -1,4 +1,4 @@
-#requires -runasadministrator
+###############################################################################
 #
 # Sets or Removes autologin capability on a Windows PC.
 #
@@ -14,6 +14,9 @@
 # 4) "$enable -eq 1" would be changed to "$enable".
 #    Or, $Enable can be changed to $Disable in the parameters, with the changes
 #    listed above, and in step 4 "$enable -eq 1" would become "-not $Disable"
+###############################################################################
+
+#requires -runasadministrator
 
 param(
         [parameter(HelpMessage="Auto Login username")]
