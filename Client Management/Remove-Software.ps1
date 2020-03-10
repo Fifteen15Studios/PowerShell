@@ -36,7 +36,7 @@ function uninstall($App)
     }
 }
 
-# If there is no macth found
+# If there is no match found
 if($Software -eq $null)
 {
     "$SoftwareToFind is not installed"
