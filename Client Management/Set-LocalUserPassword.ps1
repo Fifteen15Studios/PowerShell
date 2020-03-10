@@ -1,4 +1,4 @@
-#Requires -runasadministrator
+###############################################################################
 #
 # Changes the password of a local user on a Windows machine. Also can enable or
 # disable the account by using the appropriate switch.
@@ -8,7 +8,10 @@
 #    Password - The new password
 #    enable (Optional) - if set, forces the user to be enabled on the machine
 #    disable (Optional) - If set, forces the user to be disabled on the machine
+#
+###############################################################################
 
+#Requires -runasadministrator
 
 param (
     [parameter(mandatory=$true)][string]$username,
@@ -44,24 +47,23 @@ function setPassword($Password)
 
 function enableUser
 {
-    $ADSIUser.userFlags = $EnableUser
+    $EnableFlag = 512
+    $ADSIUser.userFlags = $EnableFlag
     $ADSIUser.setInfo()
     "Enabled $username"
 }
 
 function disableUser
 {
-    $ADSIUser.userFlags = $DisableUser
+    $DisableFlag = 2
+    $ADSIUser.userFlags = $DisableFlag
     $ADSIUser.setInfo()
     "Disabled $username"
 }
 
-$ADSIUser = [adsi]"WinNT://$env:COMPUTERNAME/$username" 
+$ADSIUser = [adsi]"WinNT://$env:COMPUTERNAME/$username"
 
 setPassword($password)
-
-$EnableUser = 512
-$DisableUser = 2
 
 if($enable){enableUser}
 elseif($disable){disableUser}
