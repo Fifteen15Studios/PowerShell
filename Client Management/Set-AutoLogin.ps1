@@ -10,10 +10,10 @@
 # If this is being used outside of SCCM and you would prefer to use a switch:
 # 1) the [int] would be changed to [switch], 
 # 2) the HelpMessage could be changed or removed, and remove mandatory
-# 3) the [ValidateRange(0,1)] would nee to be removed, 
-# 4)  "$enable -eq 1" would be changed to "$enable".
-# Or, $Enable can be changed to $Disable in the parameters, with the changes
-# listed above, and in step 4 "$enable -eq 1" would become "-not $Disable"
+# 3) the [ValidateRange(0,1)] would need to be removed, 
+# 4) "$enable -eq 1" would be changed to "$enable".
+#    Or, $Enable can be changed to $Disable in the parameters, with the changes
+#    listed above, and in step 4 "$enable -eq 1" would become "-not $Disable"
 
 param(
         [parameter(HelpMessage="Auto Login username")]
