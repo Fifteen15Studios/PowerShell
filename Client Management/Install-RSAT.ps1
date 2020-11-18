@@ -131,7 +131,7 @@ if (($WindowsBuild -ge $1809Build)) {
     if ($PSBoundParameters["InstallType"] -eq "Basic" -or $PSBoundParameters.Count -eq 0) {
         Write-Verbose -Verbose "Script is running with -InstallType Basic. Installing basic RSAT features"
         # Querying for what I see as the basic features of RSAT. Modify this if you think something is missing. :-)
-        $Install = Get-WindowsCapability -Online | Where-Object {$_.Name -like "Rsat.ActiveDirectory*" -OR $_.Name -like "Rsat.DHCP.Tools*" -OR $_.Name -like "Rsat.Dns.Tools*" -OR $_.Name -like "Rsat.GroupPolicy*" -OR $_.Name -like "Rsat.ServerManager*" -AND $_.State -eq "NotPresent" }
+        $Install = Get-WindowsCapability -Online | Where-Object {$_.Name -like "Rsat.ActiveDirectory*" -OR $_.Name -like "Rsat.DHCP.Tools*" -OR $_.Name -like "Rsat.Dns.Tools*" -OR $_.Name -like "Rsat.GroupPolicy*" -OR $_.Name -like "Rsat.ServerManager*" -OR $_.name -like "RSAT.BitLocker*" -AND $_.State -eq "NotPresent" }
         if ($Install -ne $null) {
             foreach ($Item in $Install) {
                 $RsatItem = $Item.Name
