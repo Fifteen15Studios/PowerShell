@@ -76,7 +76,8 @@ function Get-Info($ComputerName) {
     # Put Information into an object
     $Info = New-Object -TypeName psobject
 
-    $Info | Add-Member -MemberType NoteProperty -Name Name -Value $Name
+    $Info | Add-Member -MemberType NoteProperty -Name ComputerName -Value $OS.PSComputerName
+    $Info | Add-Member -MemberType NoteProperty -Name OS_Name -Value $Name
     $Info | Add-Member -MemberType NoteProperty -Name Bits -Value $Bit
     $Info | Add-Member -MemberType NoteProperty -Name Server -Value $ServerOS
     $Info | Add-Member -MemberType NoteProperty -Name Version -Value $Version
