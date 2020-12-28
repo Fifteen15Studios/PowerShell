@@ -28,7 +28,7 @@ function Get-Info($ComputerName) {
         $Reg = [WMIClass]"\\$ComputerName\ROOT\DEFAULT:StdRegProv"
         $Key = "SOFTWARE\Microsoft\Windows NT\CurrentVersion"
 
-        # Keys we need to get
+        # Values we need to get
         $ServerValue = "InstallationType"
         $BuildValue = "CurrentBuild"
         $InstallDateValue = "InstallDate"
@@ -58,13 +58,14 @@ function Get-Info($ComputerName) {
         $Version = [Version]$OS.version
 
         # Get values from registry
-        $ServerOS = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").InstallationType -eq "Server"
-        $Build = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").CurrentBuild
-        $InstallDate = [timezone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970')).AddSeconds($(Get-ItemProperty "HKLM:\Software\Microsoft\Windows NT\CurrentVersion").InstallDate)
+        $Key = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+        $ServerOS = (Get-ItemProperty $Key).InstallationType -eq "Server"
+        $Build = (Get-ItemProperty $Key).CurrentBuild
+        $InstallDate = [timezone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970')).AddSeconds($(Get-ItemProperty $Key).InstallDate)
 
         # If Windows 10, get Release ID
         if($Version.Major -ge 10){
-            $ReleaseID=(Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").ReleaseId
+            $ReleaseID=(Get-ItemProperty $Key).ReleaseId
         }
     }
 
