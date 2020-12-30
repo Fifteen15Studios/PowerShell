@@ -54,7 +54,7 @@ Function Add-Overlay {
     # create graphic object from source image
     $graphics = [system.drawing.Graphics]::FromImage($BlanksrcImg)
 
-    # Make new image 1/10th the size of the background
+    # Make new image 1/5th the size of the background
     $Height = $BlanksrcImg.height / 5
     $Width = $BlanksrcImg.height / 5
 
