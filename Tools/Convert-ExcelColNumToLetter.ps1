@@ -5,7 +5,7 @@
         $multiplier = [math]::floor(($col-1) / 26)
         
         while($multiplier -gt 26) {
-            $output += columnNumToLetter $multiplier - 1
+            $output += columnNumToLetter $multiplier
             $multiplier -= (26 * $multiplier)
         }
         $output += columnNumToLetter $multiplier
