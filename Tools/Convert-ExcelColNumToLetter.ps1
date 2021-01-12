@@ -1,15 +1,34 @@
-﻿function columnNumToLetter([int]$col) {
+###############################################################################
+# 
+# This function finds a column letter in Excel based in the column number.
+#   For example, column 1 is also refered to as column A. Column 26 is column Z
+#   making column 27 is AA. Column 702 is column ZZ, which makes column 703 AAA
+# 
+# Input: Column number. Ex: 27
+# Output: Column Letter. Ex: AA
+# 
+###############################################################################
+function columnNumToLetter([int]$col) {
 
     $output = ""
+    
+    # If value is 2 or more letters
     if($col -gt 26) {
-        $multiplier = [math]::floor(($col-1) / 26)
+        #Find out if value is more than 2 letters
+        $multiplier = [math]::floor(($col -1) / 26)
         
+        # Continue while value is more than 2 letters
         while($multiplier -gt 26) {
+            # Output current letter, starting with most significant
             $output += columnNumToLetter $multiplier
+            # find next letter value
             $multiplier -= (26 * $multiplier)
         }
+        # At this point, there are 2 letters that remain to be displayed
+        # multiplier holds the most first letter. Output it
         $output += columnNumToLetter $multiplier
         
+        # Find second letter
         if($col %26 -ne 0)
             {$col = $col % 26}
         else
@@ -17,6 +36,7 @@
 
     }
 
+    # Add Letter to output
     if($col -gt 0 -and $col -le 26) {
         $output += switch ($col)
         {
@@ -49,5 +69,6 @@
         }
     }
 
+    # Return the final value
     $output
 }
