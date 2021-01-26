@@ -1,6 +1,6 @@
 ###############################################################################
 # 
-# This function finds a column letter in Excel based in the column number.
+# This function finds a column letter in Excel based on the column number.
 #   For example, column 1 is also refered to as column A. Column 26 is column Z
 #   so column 27 is AA. Column 702 is column ZZ, which makes column 703 AAA
 # 
