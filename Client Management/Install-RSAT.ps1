@@ -16,7 +16,7 @@
 
 .NOTES
     Filename: Install-RSAT.ps1
-    Version: 1.2
+    Version: 1.3RH
     Author: Martin Bengtsson
     Blog: www.imab.dk
     Twitter: @mwbengtsson
