@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     This script can be used in SCCM to copy files/folders to the user's AppData folder
  
@@ -6,6 +6,8 @@
     Instead of using %UserProfile%, this script finds the currently logged on user using WMI
     then uses that username to get to the AppData folder. This is done because the SCCM
     process generally runs as an admin, so %UserProfile% will not be accurate.
+    SourcePath is the location of the files being coppied
+    AppPath is the path of the destination AFTER \AppData\
  
 .LINK
     
@@ -23,7 +25,7 @@
 
 param(
     [parameter(Mandatory=$True)]
-    $FilePath,
+    $SourcePath,
     [parameter(Mandatory=$True)]
     $AppPath
 )
@@ -37,7 +39,22 @@ Function CurrentUser {
      Return $LoggedInUser
 }
 
-$user = CurrentUser
+$AppData = “C:\Users\$(currentUser)\AppData"
 
-$AppData = “C:\Users\” + $user + “\AppData"
-XCOPY $FilePath "$AppData\$AppPath" /E /Y /H /Q /R
+# Source path ending with a \ causes problems sometimes
+# If SourcePath ends with \, Remove it
+if($SourcePath.EndsWith("\")) {
+    $SourcePath=$SourcePath.Substring(0, $SourcePath.Length -1)
+}
+# If SourcePath is surrounded by quotes, and it ends with \, remove the slash but keep the end quote
+elseif($SourcePath.EndsWith("\`"")) {
+    $SourcePath="$($SourcePath.Substring(0, $SourcePath.Length - 2))`""
+}
+
+# Remove leading \ from AppPath if there is one
+if($AppPath.startswith("\")) {
+    $AppPath = $AppPath.substring(1)
+}
+
+# Compensate for removing \ at the end of source by adding /I
+XCOPY $SourcePath "$AppData\$AppPath" /E /Y /H /Q /R /I
