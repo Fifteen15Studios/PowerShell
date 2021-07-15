@@ -8,13 +8,34 @@
 #
 ###############################################################################
 
-$ComputerName = Read-Host "Enter a computer name (Leave blank for local machine)"
+# Use this block if you want ComputerName to be a parameter
+# If you use this, comment out the "Read-Host" line below the param block
+<# [CmdletBinding()]
+    param(
+        [Parameter(
+            mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            Position = 0,
+            HelpMessage = "Enter a computer name (Leave blank for local machine)"
+            )]
+        [string] $ComputerName
+    ) #>
+
+# Use this line if you want to be able to easily get info from remote computers by simply running the file
+# If you use this, comment out the param block above
+[string] $ComputerName = Read-Host "Enter a computer name (Leave blank for local machine)"
 
 # Get Information
 function Get-Info($ComputerName) {
 
     # If remote computer
-    if($ComputerName -ne $env:COMPUTERNAME){     
+    if($ComputerName -ne $env:COMPUTERNAME){
+    
+        if( -not (Test-Connection $ComputerName -ErrorAction SilentlyContinue -Count 1)) {
+            Write-Host "$ComputerName cannot be reached" -ForegroundColor Red
+            return
+        }
 
         # Get-CimInstance doesn't work remotely for some reason - unless firewall is open and other items are in place
         # It also formats LastBootTime differently than Get-WmiObject
@@ -24,7 +45,7 @@ function Get-Info($ComputerName) {
 
         # Registry variables - needed because of WMI remote registry method
         #$HKEY_CURRENT_USER = 2147483649
-        $HKEY_Local_Machine =2147483650
+        $HKEY_Local_Machine = 2147483650
         $Reg = [WMIClass]"\\$ComputerName\ROOT\DEFAULT:StdRegProv"
         $Key = "SOFTWARE\Microsoft\Windows NT\CurrentVersion"
 
@@ -43,7 +64,7 @@ function Get-Info($ComputerName) {
 
         # Format the install date properly
         $InstallDate = [timezone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970')).AddSeconds($($Reg.GetDWORDValue($HKEY_Local_Machine, $Key, $InstallDateValue).uValue))
-        
+
         # If Windows 10, get ReleaseID
         if($Version.Major -ge 10){
             $Results = $Reg.GetStringValue($HKEY_Local_Machine, $Key, $ReleaseIDValue)
@@ -74,10 +95,17 @@ function Get-Info($ComputerName) {
     $Bit = $OS.OSArchitecture
     $LastBootUpTime = $OS.ConvertToDateTime($OS.LastBootUpTime)
 
+    $LoggedInUser = Get-WmiObject -ComputerName $ComputerName –Class Win32_ComputerSystem | select username
+    $LoggedInUser = [string]$LoggedInUser
+    $LoggedInUser = $LoggedInUser.split(“=”)
+    $LoggedInUser = $LoggedInUser.split(“}”)
+    $LoggedInUser = $LoggedInUser[1]
+
     # Put Information into an object
     $Info = New-Object -TypeName psobject
 
     $Info | Add-Member -MemberType NoteProperty -Name ComputerName -Value $OS.PSComputerName
+    $Info | Add-Member -MemberType NoteProperty -Name LoggedInUser -Value $LoggedInUser
     $Info | Add-Member -MemberType NoteProperty -Name OS_Name -Value $Name
     $Info | Add-Member -MemberType NoteProperty -Name Bits -Value $Bit
     $Info | Add-Member -MemberType NoteProperty -Name Server -Value $ServerOS
@@ -121,7 +149,7 @@ function Get-Info($ComputerName) {
 }
 
 # If computername is empty, use local computer
-if(-not [bool]$ComputerName) {
+if(-not $ComputerName) {
     $ComputerName = $env:COMPUTERNAME
 }
 
