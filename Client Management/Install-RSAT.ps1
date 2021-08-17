@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Install RSAT features for Windows 10 1809+
     
@@ -37,6 +37,9 @@
               Fixed some broken logic 
                 - checking '-eq "True"'
                 - outputing $RsatItem when it hadn't been set
+
+    1.4RH -   If WSUS Server setting is found, attempts to disable and the re-enable the setting in the registry
+                - This may not work if it's set via Group Policy
 #>
 
 #Requires -runasadmin
@@ -85,7 +88,8 @@ else
 }
 
 # Get information about local WSUS server
-$WUServer = (Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name WUServer -ErrorAction Ignore).WUServer
+$WUServer = (Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name UseWUServer -ErrorAction Ignore).UseWUServer -eq 1
+$WSUSKeySet = $false
 $TestPendingRebootRegistry = Test-PendingRebootRegistry
 
 if (($WindowsBuild -ge $1809Build)) {
@@ -97,6 +101,17 @@ if (($WindowsBuild -ge $1809Build)) {
         Write-Verbose -Verbose "You might need to configure additional setting by GPO if things are not working"
         Write-Verbose -Verbose "The GPO of interest is following: Specify settings for optional component installation and component repair"
         Write-Verbose -Verbose "Check ON: Download repair content and optional features directly from Windows Update..."
+        Write-Verbose -Verbose "Attempting to disable WSUS Setting..."
+        Set-ItemProperty -path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "UseWUServer" -Value 0 | Out-Null
+        # If successfully set key
+        if($?) {
+            Write-Verbose -Verbose "Success!"
+            $WSUSKeySet = $true
+        }
+        else {
+            Write-Verbose -Verbose "Failed to write registry key. GPO may be active."
+        }
+
         Write-Verbose -Verbose "***********************************************************"
     }
 
@@ -213,6 +228,19 @@ if (($WindowsBuild -ge $1809Build)) {
         else {
             Write-Verbose -Verbose "All RSAT features seems to be uninstalled already"
         }
+    }
+
+    # If WSUS Setting was changed in registry, change it back
+    if($WSUSKeySet) {
+        Write-Verbose -Verbose "Attempting to re-enable WSUS Setting..."
+            Set-ItemProperty -path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "UseWUServer" -Value 1 | Out-Null
+            # If successfully set key
+            if($?) {
+                Write-Verbose -Verbose "Success!"
+            }
+            else {
+                Write-Verbose -Verbose "Failed to set HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\UseWUServer to its original value (1)"
+            }
     }
 }
 else {
