@@ -3,6 +3,8 @@ A repository of PowerShell scripts that I have written (or stolen, or sometimes 
 
 Each script has a comment block at the top of it to describe its purpose and how it should be used. Some scripts may have parameters. Those parameters should be explained in the comment block.
 
+Also included is a [custom dark theme](https://github.com/Fifteen15Studios/PowerShell/blob/master/My%20Dark%20Theme.StorableColorTheme.ps1xml) that I created for the Powershell ISE. To use this theme in the ISE, download the file locally and then selct `Tools -> Options... -> Manage Themes... -> Import...` and navigate to the downloaded file.
+
 ## Notes
 1) Many of these were written without any type of error checking. If you plan on using these scripts, do not expect them to fail gracefully.
 2) Most of these scripts have variables in them that need to be set prior to using them. These variables will likely be dependent on your environment, and therefore are set as something generic (or not set at all) in the version provided here.
