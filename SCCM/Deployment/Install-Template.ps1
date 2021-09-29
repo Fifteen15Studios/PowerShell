@@ -78,6 +78,8 @@ function log($Status) {
 # If there is a reboot pending, don't do the install and display a message
 if(Test-PendingReboot) {
 
+    log "Reboot pending"
+
     Write-Host "A reboot is pending. Please reboot and try again." -BackgroundColor Red -ForegroundColor White
     
     $Seconds = 30
