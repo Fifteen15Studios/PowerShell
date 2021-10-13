@@ -10,7 +10,7 @@
 # it will perform an install.
 #
 # Required variables to set:
-#   Server : Server name or ip to send logs to.
+#   Server : Server name or IP Address to send logs to.
 #   Share : Share name on the server.
 #   AppName : Name of the application being (un)installed.
 #   InstallFile : The file to use for the install. 
@@ -19,9 +19,13 @@
 #     Example: "-i program.msi -qb"
 #   UninstallFile : The file to use for the uninstall. 
 #     Example: "Install.exe" or "msiexec"
-#   UninstallArguments = Arguments to pass to the install file.
+#   UninstallArguments = Arguments to pass to the uninstall file.
 #     Example: "-x program.msi -qn"
+#
+# PROPER USAGE FROM SCCM - "cmd /c start /wait powershell -executionpolicy bypass -file <Filename>.ps1"
+# If you simply run "powershell -executionpolicy bypass -file <Filename>.ps1" it will run in the background without showing the PS window
 #>
+
 
 param(
     [switch]$Uninstall
@@ -33,11 +37,28 @@ $AppName=""
 
 $CSVPath = "\\$Server\$Share\Logs\$AppName\$AppName.csv"
 
-$InstallFile = ""
+$InstallFile = "$PSScriptRoot\"
 $InstallArguments = ""
-$UninstallFile = ""
+$UninstallFile = "$PSScriptRoot\"
 $UninstallArguments = ""
 
+function Pre-Install() {
+    # If you need to do anything before the install, put it here
+}
+
+function Post-Install() {
+    # If you need to do anything after the install, put it here
+}
+
+function Pre-Uninstall() {
+    # If you need to do anything before the uninstall, put it here
+}
+
+function Post-Uninstall() {
+    # If you need to do anything after the uninstall, put it here
+}
+
+#--------------------- DO NOT CHANGE ANYTHING BELOW THIS LINE -------------------------------
 # Tests if a reboot is pending
 function Test-PendingReboot() {
     $PendingRebootTests = @(
@@ -72,7 +93,12 @@ function log($Status) {
     $Date = (Get-Date).ToString("yyyy/MM/dd")
     $Time = (Get-Date).ToString("HH:mm:ss")
 
-    Add-Content -Value "$Date,$Time,$Env:Computername,$Status" -Path $CSVPath
+    try {
+        Add-Content -Value "$Date,$Time,$Env:Computername,$Status" -Path $CSVPath
+    }
+    catch {
+
+    }
 }
 
 # If there is a reboot pending, don't do the install and display a message
@@ -109,11 +135,13 @@ Write-Host "DO NOT CLOSE THIS WINDOW!" -BackgroundColor Red -ForegroundColor Whi
 if($Uninstall) {
     log "Uninstall_START"
     "Uninstalling $AppName. Please wait..."
+    Pre-Install
     $ExitCode=(Start-Process -Wait -FilePath $UninstallFile -ArgumentList $UninstallArguments -PassThru).ExitCode
 }
 else {
     log "Install_START"
     "Installing $AppName. Please wait..."
+    Pre-Uninstall
     $ExitCode=(Start-Process -Wait -FilePath $InstallFile -ArgumentList $InstallArguments -PassThru).ExitCode
 }    
 
@@ -121,9 +149,12 @@ else {
 if($ExitCode -eq 0) {
     log "SUCCESS"
     
-    #--------------------------------------------------------------------------
-    # Do any extra post-install stuff - like adding registry entries - here
-    #--------------------------------------------------------------------------
+    If($uninstall) {
+        Post-Uninstall
+    }
+    else {
+        Post-Install
+    }
 }
 else {
     log "Failed with exit code $ExitCode"
