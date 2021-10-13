@@ -1,6 +1,8 @@
 # This script is designed to deploy software that is packaged into a WIM file. To use it, create a WIM file with the required
 # install files (including an install Script inside of the WIM) and then use this script to perform the install.
 #
+# Designed to be used in conjunction with Install-Template.ps1 - which should be placed inside of the WIM file
+#
 #
 # To Create the WIM file, run the following command:
 #
