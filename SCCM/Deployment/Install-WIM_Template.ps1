@@ -44,7 +44,12 @@ function log($Status) {
     $Date = (Get-Date).ToString("yyyy/MM/dd")
     $Time = (Get-Date).ToString("HH:mm:ss")
 
-    Add-Content -Value "$Date,$Time,$Env:Computername,$Status" -Path $CSVPath
+    try {
+        Add-Content -Value "$Date,$Time,$Env:Computername,$Status" -Path $CSVPath
+    }
+    catch {
+
+    }
 }
 
 try {
