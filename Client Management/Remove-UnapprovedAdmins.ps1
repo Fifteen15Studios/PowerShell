@@ -6,8 +6,13 @@
 
 #Requires -runasadmin
 
-# Add other values here, each entry separated by a comma
-$Approved = "Administrator","Domain Admins"
+$Approved = [System.Collections.ArrayList]@()
+# Add other values here, each entry separated by a comma. Yes, the double parentheses are necessary.
+$Approved.AddRange(("Administrator","Domain Admins"))
+
+# Optional - Add all users of an AD group to the approved list.
+#$group = (Get-ADGroupMember "Approved_Admins").name
+#$Approved.AddRange($group)
 
 # Get administrators group object
 $obj_group = [ADSI]"WinNT://localhost/Administrators,group"
