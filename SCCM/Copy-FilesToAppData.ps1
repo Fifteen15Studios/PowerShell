@@ -31,12 +31,34 @@ param(
 )
 
 Function CurrentUser {
-     $LoggedInUser = get-wmiobject win32_computersystem | select username
-     $LoggedInUser = [string]$LoggedInUser
-     $LoggedInUser = $LoggedInUser.split(“\”)
-     $LoggedInUser = $LoggedInUser.split(“}”)
-     $LoggedInUser = $LoggedInUser[1]
-     Return $LoggedInUser
+    try {
+        # This only works if Logged in locally
+        $currentUser = (((Get-WMIObject Win32_ComputerSystem).Username).Split('\')[1])
+    }
+    catch {
+        # This works if logged in via remote desktop
+        $Users = quser.exe /server:$computer 2>$null | select -Skip 1
+
+        # Filter the results
+        $loggedOnUsers = foreach ($user in $users){
+            ((($user).Split(" ",2)[0]).split(">",2)[1]).trim()
+        }
+
+        if($loggedOnUsers.count -gt 1) {
+            $currentUser = $loggedOnUsers[0]
+        }
+        else {
+            $currentUser = $loggedOnUsers
+        }
+    }
+    # Catch-all in case both went wrong
+    finally {
+        if(-not $currentUser) {
+            $currentUser = ""
+        }
+    }
+    
+     Return $currentUser
 }
 
 $AppData = “C:\Users\$(currentUser)\AppData"
