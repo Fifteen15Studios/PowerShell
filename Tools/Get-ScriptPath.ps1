@@ -23,6 +23,11 @@ function Get-ScriptPath()
         $ScriptPath = split-path -parent $MyInvocation.MyCommand.Path
     }
 
+    # Works when using ps2exe to create an exe file
+    if(-not $ScriptPath) {
+        $ScriptPath = [System.AppDomain]::CurrentDomain.BaseDirectory.TrimEnd('\')
+    }
+
     # Return result
     $ScriptPath
 }
