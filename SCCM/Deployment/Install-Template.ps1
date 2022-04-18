@@ -10,25 +10,37 @@
 # it will perform an install.
 #
 # Required variables to set:
-#   Server : Server name or IP Address to send logs to.
-#   Share : Share name on the server.
-#   AppName : Name of the application being (un)installed.
-#   InstallFile : The file to use for the install. 
-#     Example: "Install.exe" or "msiexec"
-#   InstallArguments : Arguments to pass to the install file.
-#     Example: "-i program.msi -qb"
-#   UninstallFile : The file to use for the uninstall. 
-#     Example: "Install.exe" or "msiexec"
-#   UninstallArguments = Arguments to pass to the uninstall file.
-#     Example: "-x program.msi -qn"
+#   Server             : Server name or IP Address to send logs to.
+#   Share              : Share name on the server to send logs to.
+#   AppName            : Name of the application.
+#   InstallFile        : The file to use for the install. In most cases, should start with $PSScriptRoot\
+#     Example            : "$PSScriptRoot\Install.exe" or "msiexec"
+#   InstallArguments   : Arguments to pass to the install file.
+#     Example            : "--silent" or "-i program.msi -qb"
 #
-# PROPER USAGE FROM SCCM - "cmd /c start /wait powershell -executionpolicy bypass -file <Filename>.ps1"
-# If you simply run "powershell -executionpolicy bypass -file <Filename>.ps1" it will run in the background without showing the PS window
+# Optional variables to set: 
+# If you want to use uninstall, or reinstall switches, uninstall values are required:
+#   UninstallFile      : The file to use for the uninstall. In most cases, should start with $PSScriptRoot\
+#   UninstallArguments : Arguments to pass to the uninstall file.
+# If you want to use repair reinstall switches, repair values are required:
+#   RepairFile         : The file to use for the repair. In most cases, should start with $PSScriptRoot\
+#   RepairArguments    : Arguments to pass to the repair file.
+#
+# Switches:
+#   Uninstall : Perform an uninstall of the software using UninstallFile and UninstallArguments
+#   Reinstall : Perform an uninstall then install of the software
+#   Repair    : Perform a repair of the software using RepairFile and RepairArguments
+#
+# PROPER USAGE FROM SCCM - 
+# "cmd /c start /wait powershell -executionpolicy bypass -file <Filename>.ps1" To show PowerShell window
+# "powershell -executionpolicy bypass -file <Filename>.ps1" to run in the background without showing the PowerShell window
 #>
 
 
 param(
-    [switch]$Uninstall
+    [switch]$Uninstall,
+    [switch]$Reinstall,
+    [switch]$Repair
 )
 
 $Server = ""
@@ -41,6 +53,11 @@ $InstallFile = "$PSScriptRoot\"
 $InstallArguments = ""
 $UninstallFile = "$PSScriptRoot\"
 $UninstallArguments = ""
+$RepairFile = "$PSScriptRoot\"
+$RepairArguments = ""
+
+# Codes other than 0 means reboot required, but was successful
+$SuccessCodes = (0, 1641, 3010, 17022)
 
 function Pre-Install() {
     # If you need to do anything before the install, put it here
@@ -90,6 +107,18 @@ function Test-PendingReboot() {
 # Writes $status to the csv file defined above.
 # Includes a date/time stamp, and computer name.
 function log($Status) {
+
+    # Create folder structure
+    if(-not (Test-Path (Split-Path $CSVPath))) {
+        New-Item (Split-Path $CSVPath) -ItemType Directory | Out-Null
+    }
+
+    # If csv file doesn't exist, create it with the proper headings
+    # NOTE: This might throw an error if the folder isn't created or if the user doesn't have permissions
+    if(-not (Test-Path "$CSVPath")) {
+        Add-Content -Value 'Date,Time,Computername,Status' -Path $CSVPath
+    }
+
     $Date = (Get-Date).ToString("yyyy/MM/dd")
     $Time = (Get-Date).ToString("HH:mm:ss")
 
@@ -98,6 +127,41 @@ function log($Status) {
     }
     catch {
 
+    }
+}
+
+# Perform the install or uninstall and get the exit code
+function Uninstall() {
+    log "Uninstall_START"
+    "Uninstalling $AppName. Please wait..."
+    Pre-Uninstall
+    if($UninstallArguments) {
+        $script:ExitCode=(Start-Process -Wait -FilePath $UninstallFile -ArgumentList $UninstallArguments -PassThru -WindowStyle Hidden).ExitCode
+    }
+    else {
+        $script:ExitCode=(Start-Process -Wait -FilePath $UninstallFile -PassThru -WindowStyle Hidden).ExitCode
+    }
+}
+function Install() {
+    log "Install_START"
+    "Installing $AppName. Please wait..."
+    Pre-Install
+    if($InstallArguments) {
+        $script:ExitCode=(Start-Process -Wait -FilePath $InstallFile -ArgumentList $InstallArguments -PassThru -WindowStyle Hidden).ExitCode
+    }
+    else {
+        $script:ExitCode=(Start-Process -Wait -FilePath $InstallFile -PassThru -WindowStyle Hidden).ExitCode
+    }
+    $script:install = $true
+}
+function Repair() {
+    log "Repair_START"
+    "Repairing $AppName. Please wait..."
+    if($RepairArguments) {
+        $script:ExitCode=(Start-Process -Wait -FilePath $RepairFile -ArgumentList $RepairArguments -PassThru -WindowStyle Hidden).ExitCode
+    }
+    else {
+        $script:ExitCode=(Start-Process -Wait -FilePath $RepairFile -PassThru -WindowStyle Hidden).ExitCode
     }
 }
 
@@ -121,38 +185,34 @@ if(Test-PendingReboot) {
     exit 3010
 }
 
-# If csv file doesn't exist, create it with the proper headings
-# NOTE: This might throw an error if the folder isn't created or if the user doesn't have permissions
-if(-not (Test-Path "$CSVPath")) {
-    add-content -value 'Date,Time,Computername,Status' -path $CSVPath
-}
-
 # Warn the user not to close the window
 Write-Host "DO NOT CLOSE THIS WINDOW!" -BackgroundColor Red -ForegroundColor White
 ""
 
-# Perform the install or uninstall and get the exit code
-if($Uninstall) {
-    log "Uninstall_START"
-    "Uninstalling $AppName. Please wait..."
-    Pre-Install
-    $ExitCode=(Start-Process -Wait -FilePath $UninstallFile -ArgumentList $UninstallArguments -PassThru).ExitCode
+# Perform the appropriate action
+if($Repair) {
+    Repair
 }
-else {
-    log "Install_START"
-    "Installing $AppName. Please wait..."
-    Pre-Uninstall
-    $ExitCode=(Start-Process -Wait -FilePath $InstallFile -ArgumentList $InstallArguments -PassThru).ExitCode
-}    
+elseif($Reinstall) {
+    Uninstall
+    # If uninstall was successful
+    if($ExitCode -in $SuccessCodes) {
+        Post-Uninstall
+        Install
+    }
+}
+elseif($Uninstall) { Uninstall }
+else { Install }
 
 # Read exit code and report success or failure to the log before exiting with the same code
-if($ExitCode -eq 0) {
+if($ExitCode -in $SuccessCodes) {
     log "SUCCESS"
     
     If($uninstall) {
         Post-Uninstall
     }
-    else {
+    # If install or reinstall
+    elseif($Install) {
         Post-Install
     }
 }
@@ -160,4 +220,5 @@ else {
     log "Failed with exit code $ExitCode"
 }
 
+$LASTEXITCODE = $ExitCode
 exit $ExitCode
