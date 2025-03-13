@@ -95,10 +95,10 @@ function Get-Info($ComputerName) {
     $Bit = $OS.OSArchitecture
     $LastBootUpTime = $OS.ConvertToDateTime($OS.LastBootUpTime)
 
-    $LoggedInUser = Get-WmiObject -ComputerName $ComputerName –Class Win32_ComputerSystem | select username
+    $LoggedInUser = Get-WmiObject -ComputerName $ComputerName -Class Win32_ComputerSystem | select username
     $LoggedInUser = [string]$LoggedInUser
-    $LoggedInUser = $LoggedInUser.split(“=”)
-    $LoggedInUser = $LoggedInUser.split(“}”)
+    $LoggedInUser = $LoggedInUser.split("=")
+    $LoggedInUser = $LoggedInUser.split("}")
     $LoggedInUser = $LoggedInUser[1]
 
     # Put Information into an object
